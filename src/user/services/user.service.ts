@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { comparePassword, encodePassword } from 'src/ultis/bcrypt';
 import { Repository } from 'typeorm';
 import { CreateUserDto, SerializeUserDto } from '../dto/create-user.dto';
 import { UserEntity } from '../entities/user.entity';
@@ -12,7 +13,9 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const user = await this.userRepository.save(createUserDto);
+    const password = await encodePassword(createUserDto.password);
+    console.log('🚀 ~ file: user.service.ts:17 ~ password:', password);
+    const user = await this.userRepository.save({ ...createUserDto, password });
     return new SerializeUserDto(user);
   }
 
@@ -27,5 +30,17 @@ export class UserService {
     });
     if (user) return new SerializeUserDto(user);
     else return user;
+  }
+
+  async findForLogin(username: string, password: string) {
+    const user = await this.userRepository.findOne({
+      where: { username: username },
+    });
+    if (user) {
+      const match = await comparePassword(password, user.password);
+      if (match) return user;
+      else return null;
+    }
+    return user;
   }
 }
