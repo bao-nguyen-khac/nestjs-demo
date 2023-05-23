@@ -8,6 +8,7 @@ import {
   UseFilters,
   HttpException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
 import { HttpExceptionFilter } from 'src/user/filters/http-exeption.filter';
 import { AuthService } from '../services/auth.service';
@@ -16,6 +17,7 @@ import { AuthService } from '../services/auth.service';
 export class AuthController {
   constructor(
     @Inject('AUTH_SERVICE') private readonly authService: AuthService,
+    private configService: ConfigService,
   ) {}
 
   @UseGuards(AuthGuard('local'))
@@ -31,6 +33,7 @@ export class AuthController {
   @UseFilters(HttpExceptionFilter)
   privateSite(@Request() req) {
     console.log(req.user);
+    console.log(this.configService.get<string>('DATABASE_TYPE'));
     throw new HttpException('Login suscessful', 200);
   }
 }
