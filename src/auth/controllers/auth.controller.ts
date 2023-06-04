@@ -7,6 +7,7 @@ import {
   Get,
   UseFilters,
   HttpException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthGuard } from '@nestjs/passport';
@@ -30,7 +31,6 @@ export class AuthController {
 
   @UseGuards(AuthGuard('jwt'))
   @Get('private')
-  @UseFilters(HttpExceptionFilter)
   privateSite(@Request() req) {
     console.log(req.user);
     console.log(this.configService.get<string>('DATABASE_TYPE'));
