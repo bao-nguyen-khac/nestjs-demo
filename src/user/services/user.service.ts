@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { comparePassword, encodePassword } from 'src/ultis/bcrypt';
+import { comparePassword, encodePassword } from '../../ultis/bcrypt';
 import { Repository } from 'typeorm';
 import { CreateUserDto, SerializeUserDto } from '../dto/create-user.dto';
 import { UserEntity } from '../entities/user.entity';

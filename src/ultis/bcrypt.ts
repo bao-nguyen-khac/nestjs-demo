@@ -1,8 +1,8 @@
 import * as bcrypt from 'bcrypt';
-export async function encodePassword(password: string) {
-  return await bcrypt.hash(password, bcrypt.genSaltSync());
+export function encodePassword(password: string) {
+  return bcrypt.hashSync(password, bcrypt.genSaltSync());
 }
 
-export async function comparePassword(password: string, hash: string) {
-  return await bcrypt.compare(password, hash);
+export function comparePassword(password: string, hash: string) {
+  return bcrypt.compareSync(password, hash);
 }
