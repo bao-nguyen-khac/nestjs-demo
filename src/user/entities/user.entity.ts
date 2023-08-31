@@ -23,4 +23,9 @@ export class UserEntity {
     default: '',
   })
   email: string;
+
+  @Column({
+    nullable: true,
+  })
+  refreshToken: string;
 }

@@ -10,7 +10,7 @@ export class CreateUserDto {
   @MinLength(6)
   password: string;
 
-  @IsEmail()
+  // @IsEmail()
   email: string;
 }
 
@@ -22,6 +22,9 @@ export class SerializeUserDto {
 
   @Exclude()
   password: string;
+
+  @Exclude()
+  refreshToken: string;
 
   email: string;
 

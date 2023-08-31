@@ -5,14 +5,19 @@ import {
   Request,
   Inject,
   Get,
-  UseFilters,
-  HttpException,
+  Body,
+  UsePipes,
+  ValidationPipe,
   UseInterceptors,
+  ClassSerializerInterceptor,
+  Req,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { AuthGuard } from '@nestjs/passport';
-import { HttpExceptionFilter } from 'src/user/filters/http-exeption.filter';
 import { AuthService } from '../services/auth.service';
+import { LocalGuard } from '../guards/local.guard';
+import { CreateUserDto } from '../../user/dto/create-user.dto';
+import { AccessTokenGuard } from '../guards/accessToken.guard';
+import { RefreshTokenGuard } from '../guards/refreshToken.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -21,19 +26,28 @@ export class AuthController {
     private configService: ConfigService,
   ) {}
 
-  @UseGuards(AuthGuard('local'))
+  @UseGuards(LocalGuard)
   @Post('login')
   async login(@Request() req) {
-    return {
-      token: req.user.access_token,
-    };
+    return req.user;
   }
 
-  @UseGuards(AuthGuard('jwt'))
-  @Get('private')
+  @Post('register')
+  @UsePipes(ValidationPipe)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async register(@Body() createUserDto: CreateUserDto) {
+    return await this.authService.register(createUserDto);
+  }
+
+  @UseGuards(RefreshTokenGuard)
+  @Get('refresh')
+  refreshToken(@Req() req: any) {
+    return this.authService.refreshToken(req.user);
+  }
+
+  @UseGuards(AccessTokenGuard)
+  @Get('user-info')
   privateSite(@Request() req) {
-    console.log(req.user);
-    console.log(this.configService.get<string>('DATABASE_TYPE'));
-    throw new HttpException('Login suscessful', 200);
+    return req.user;
   }
 }

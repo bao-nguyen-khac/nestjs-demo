@@ -13,7 +13,7 @@ export class UserService {
   ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const password = await encodePassword(createUserDto.password);
+    const password = encodePassword(createUserDto.password);
     console.log('🚀 ~ file: user.service.ts:17 ~ password:', password);
     const user = await this.userRepository.save({ ...createUserDto, password });
     return new SerializeUserDto(user);
@@ -37,7 +37,7 @@ export class UserService {
       where: { username: username },
     });
     if (user) {
-      const match = await comparePassword(password, user.password);
+      const match = comparePassword(password, user.password);
       if (match) return user;
       else return null;
     }

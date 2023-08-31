@@ -7,16 +7,12 @@ import { AuthService } from './services/auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy } from './ultis/local-strategy';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from './ultis/jwt-strategy';
 import { ConfigModule } from '@nestjs/config';
+import { AccessTokenStrategy } from './ultis/accessToken.strategy';
+import { RefreshTokenStrategy } from './ultis/refreshToken.strategy';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UserEntity]),
-    PassportModule,
-    JwtModule.register({ secret: '123456', signOptions: { expiresIn: '8h' } }),
-    ConfigModule,
-  ],
+  imports: [TypeOrmModule.forFeature([UserEntity]), PassportModule, JwtModule.register({}), ConfigModule],
   controllers: [AuthController],
   providers: [
     {
@@ -28,7 +24,8 @@ import { ConfigModule } from '@nestjs/config';
       useClass: UserService,
     },
     LocalStrategy,
-    JwtStrategy,
+    AccessTokenStrategy,
+    RefreshTokenStrategy,
   ],
 })
 export class AuthModule {}
