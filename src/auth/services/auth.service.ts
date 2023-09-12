@@ -3,6 +3,7 @@ import { UserService } from '../../user/services/user.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { JwtService } from '@nestjs/jwt';
 import { genAccessToken, genRefreshToken } from '../../ultis/jwt';
+import { Profile } from 'passport-google-oauth20';
 
 @Injectable()
 export class AuthService {
@@ -54,7 +55,60 @@ export class AuthService {
 
   async register(createUserDto: CreateUserDto) {
     const newUser = await this.userService.create(createUserDto);
-    console.log('🚀 ~ file: auth.service.ts:57 ~ register ~ newUser:', newUser);
     return newUser;
+  }
+
+  async loginViaGoogleAuth(payload: Profile) {
+    const user = await this.userService.findByEmail(payload.emails[0].value);
+    console.log('🚀 ~ file: auth.service.ts:64 ~ loginViaGoogleAuth ~ user:', user);
+    if (!user) {
+      const createUserDto: any = {
+        email: payload.emails[0].value,
+        username: payload.emails[0].value,
+        password: payload.id,
+      };
+      const user = await this.userService.createViaGg(createUserDto);
+      const refreshToken = await genRefreshToken(
+        {
+          id: user.id,
+          username: user.username,
+        },
+        this.jwtService,
+      );
+      user.refreshToken = refreshToken;
+      await this.userService.createViaGg(user);
+      const accessToken = await genAccessToken(
+        {
+          id: user.id,
+          username: user.username,
+        },
+        this.jwtService,
+      );
+      return {
+        accessToken,
+        refreshToken,
+      };
+    } else {
+      const refreshToken = await genRefreshToken(
+        {
+          id: user.id,
+          username: user.username,
+        },
+        this.jwtService,
+      );
+      user.refreshToken = refreshToken;
+      await this.userService.create(user);
+      const accessToken = await genAccessToken(
+        {
+          id: user.id,
+          username: user.username,
+        },
+        this.jwtService,
+      );
+      return {
+        refreshToken,
+        accessToken,
+      };
+    }
   }
 }

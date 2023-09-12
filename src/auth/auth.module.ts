@@ -10,6 +10,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { AccessTokenStrategy } from './ultis/accessToken.strategy';
 import { RefreshTokenStrategy } from './ultis/refreshToken.strategy';
+import { GoogleStrategy } from './ultis/googole.strategy';
 
 @Module({
   imports: [TypeOrmModule.forFeature([UserEntity]), PassportModule, JwtModule.register({}), ConfigModule],
@@ -26,6 +27,7 @@ import { RefreshTokenStrategy } from './ultis/refreshToken.strategy';
     LocalStrategy,
     AccessTokenStrategy,
     RefreshTokenStrategy,
+    GoogleStrategy,
   ],
 })
 export class AuthModule {}

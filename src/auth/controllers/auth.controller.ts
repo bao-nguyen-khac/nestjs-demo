@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   ClassSerializerInterceptor,
   Req,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthService } from '../services/auth.service';
@@ -18,6 +19,7 @@ import { LocalGuard } from '../guards/local.guard';
 import { CreateUserDto } from '../../user/dto/create-user.dto';
 import { AccessTokenGuard } from '../guards/accessToken.guard';
 import { RefreshTokenGuard } from '../guards/refreshToken.guard';
+import { GoogleGuard } from '../guards/google.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -27,9 +29,23 @@ export class AuthController {
   ) {}
 
   @UseGuards(LocalGuard)
-  @Post('login')
+  @Post('login/local')
   async login(@Request() req) {
-    return req.user;
+    console.log('🚀 ~ file: auth.controller.ts:34 ~ login ~ req:', req.user);
+    const token = await this.authService.checkLogin(req.user.username, req.user.password);
+    if (!token) throw new UnauthorizedException();
+    return token;
+  }
+
+  @UseGuards(GoogleGuard)
+  @Get('login/google')
+  async loginGoogle() {}
+
+  @UseGuards(GoogleGuard)
+  @Get('google/callback')
+  async googleCallback(@Request() req) {
+    const token = await this.authService.loginViaGoogleAuth(req.user);
+    return token;
   }
 
   @Post('register')

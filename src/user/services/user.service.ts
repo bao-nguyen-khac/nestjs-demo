@@ -19,6 +19,12 @@ export class UserService {
     return new SerializeUserDto(user);
   }
 
+  async createViaGg(createUserDto) {
+    const password = encodePassword(createUserDto.password);
+    const user = await this.userRepository.save({ ...createUserDto, password });
+    return user;
+  }
+
   async getAll() {
     const users = await this.userRepository.find();
     return users.map((user) => new SerializeUserDto(user));
@@ -41,6 +47,13 @@ export class UserService {
       if (match) return user;
       else return null;
     }
+    return user;
+  }
+
+  async findByEmail(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email: email },
+    });
     return user;
   }
 }
